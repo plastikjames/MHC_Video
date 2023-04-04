@@ -23,13 +23,60 @@ then
     
     #Config grub
     sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="quiet splash"/g' /etc/default/grub
-    update grub
+    update-grub
 
     #download config files and coppy to right locations
     git clone https://github.com/plastikjames/MHC_Video
-    
+    cp -r ./MHC_Video/configs/isolimited /usr/share/plymouth/themes
+    update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/isolimited/isolimited.plymouth 100
+    echo 2 | update-alternatives --config default.plymouth
+    echo -e "\n\n~~~~ now updating initramfs. This can take a moment so please wait. ~~~~"
+    update-initramfs -u
+
+    #Setup greeter config
+    touch /etc/lightdm/lightdm.conf.d/greeter.conf
+    echo "[Seat:*]" > /etc/lightdm/lightdm.conf.d/greeter.conf
+    echo "greeter-session=slick-greeter" >> /etc/lightdm/lightdm.conf.d/greeter.conf
+
+    touch /etc/lightdm/slick-greeter.conf
+    echo "[Greeter]" > /etc/lightdm/slick-greeter.conf
+    echo "background=/usr/share/plymouth/themes/isolimited/mhc-background.png" >> /etc/lightdm/slick-greeter.conf
 
     #Disable Gnome Keyring
+    mv /usr/bin/gnome-keyring-daemon /usr/bin/gnome-keyring-daemon.bak 
+    touch /usr/bin/gnome-keyring-daemon
+    chmod a+rx /usr/bin/gnome-keyring-daemon
+
+    #Configure Auto-login
+    touch /etc/lightdm/lightdm.conf
+    echo "[Seat:*]" > /etc/lightdm/lightdm.conf
+    echo "user-session=myxclient" >> /etc/lightdm/lightdm.conf
+    echo "autologin-user=mhcoperator" >> /etc/lightdm/lightdm.conf
+    echo "autologin-user-timeout=20" >> /etc/lightdm/lightdm.conf
+    echo "#xserver-command = X -nocursor" >> /etc/lightdm/lightdm.conf
+    echo "display-setup-script=/usr/local/bin/dpms-stop" >> /etc/lightdm/lightdm.conf
+
+    touch /usr/share/xsessions/myxclient.desktop
+    echo "[Desktop Entry]" > /usr/share/xsessions/myxclient.desktop
+    echo "Name=NXWitness" >> /usr/share/xsessions/myxclient.desktop
+    echo "Comment=NX" >> /usr/share/xsessions/myxclient.desktop
+    echo "Exec=//opt/networkoptix/client/5.0.0.35745/bin/client-bin --window-geometry=0,0,1920x1080" >> /usr/share/xsessions/myxclient.desktop
+    echo "Icon=" >> /usr/share/xsessions/myxclient.desktop
+    echo "Type=Application" >> /usr/share/xsessions/myxclient.desktop
+
+    #Disable sleep and suspend
+    touch /usr/local/bin/dpms-stop
+    echo "#!/bin/sh" > /usr/local/bin/dpms-stop
+    echo "sudo xhost +si:mhcoperator:lightdm" >> /usr/local/bin/dpms-stop
+    echo "sudo su lightdm -s /bin/bash" >> /usr/local/bin/dpms-stop
+    echo "/usr/bin/xset -dpms" >> /usr/local/bin/dpms-stop
+    echo "/usr/bin/xset s off" >> /usr/local/bin/dpms-stop
+    echo "exit" >> /usr/local/bin/dpms-stop
+
+    chmod +x /usr/local/bin/dpms-stop
+
+    #Remove downloaded files
+    rm -r ./MHC_Video
 
     #Set Static IP address
     echo -e "\nWould you like to set a static IP address? (Type 'yes' to confirm)"
@@ -68,6 +115,7 @@ then
         # Apply the new config
         sudo netplan apply
     fi
+    echo -e "\n\n~~Installation complete - please reboot the machine and use the GUI to configure NX witness display. ~~"
 else 
     echo -e "\n\n~~ Installation cancelled ~~\n"
 fi
