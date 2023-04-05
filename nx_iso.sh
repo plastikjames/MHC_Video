@@ -72,7 +72,8 @@ do
 
         #Install the packages
         apt-get update
-        apt install gnome-session lightdm plymouth-themes slick-greeter -y
+        apt install lightdm -y
+        apt install plymouth-themes slick-greeter -y
         
         wget https://updates.networkoptix.com/default/35745/linux/nxwitness-client-5.0.0.35745-linux_x64.deb
         apt install ./nxwitness-client-5.0.0.35745-linux_x64.deb -y
