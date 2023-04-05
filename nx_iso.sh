@@ -68,12 +68,12 @@ do
         #Do the install
 
         #Add the user
-        adduser mhcoperator --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
+        adduser mhcoperator --gecos ",,," --disabled-password
 
         #Install the packages
         apt-get update
-        DEBIAN_FRONTEND=noninteractive apt install lightdm plymouth-themes slick-greeter -y
-        echo "/usr/sbin/lightdm" > /etc/X11/default-display-manager
+        apt install gnome-session lightdm plymouth-themes slick-greeter -y
+        
         wget https://updates.networkoptix.com/default/35745/linux/nxwitness-client-5.0.0.35745-linux_x64.deb
         apt install ./nxwitness-client-5.0.0.35745-linux_x64.deb -y
         
@@ -151,8 +151,9 @@ do
             touch 99-custom.yaml
 
             #get nic info
-            apt install net-tools -y
             NIC=`ifconfig | awk 'NR==1{print $1}'`
+
+            echo "Now setting IP address. Please reconnect using new IP"
 
             # Apply network config to netplan yaml config file
             # Making some assumptions here about the adapter name
