@@ -5,8 +5,8 @@ ModuleName=two-step
 
 [two-step]
 ImageDir=/usr/share/plymouth/themes/isolimited
-BackgroundStartColor=0x303030
-BackgroundEndColor=0x303030
+BackgroundStartColor=0x6C7174
+BackgroundEndColor=0x6C7174
 WatermarkHorizontalAlignment=0.5
 WatermarkVerticalAlignment=0.5
 HorizontalAlignment=0.5
